@@ -156,13 +156,13 @@ void divide(string file_name, char divide_symbol)
     table.open(file_name + "_table" + file_ext);
     if (myfile.is_open())
     {
-        while (getline(myfile, mystring))
+        while (getline(myfile, mystring)) // fetch one line
         {
-            if (mystring[0] == divide_symbol)
+            if (mystring[0] == divide_symbol) // check if it starts with #
             {
                 if (counter > 0)
                 {
-                    ofstream tempfile;
+                    ofstream tempfile; // open a new file and usme store kardo 
                     tempfile.open(file_name + "_" + to_string(counter) + file_ext);
                     tempfile << tmpstring;
                     tempfile.close();
@@ -205,10 +205,11 @@ string get_address_from_PT(int page_num)
             cout << "This is the extracted page no. bro" << temppgno << endl;
             ss << temppgno;
             ss >> tmp;
-            if (temppgno.compare(to_string(page_num)))
+            if (temppgno.compare(to_string(page_num))==0)
             {
                 cout << "Got the page no.\n";
-                return string(tempstring.begin() + get_digits(page_num), tempstring.end());
+                cout<<"------- FOR PN="<<page_num<<" Address="<<string(tempstring.begin()+1 + get_digits(page_num), tempstring.end())<<endl;
+                return string(tempstring.begin()+1 + get_digits(page_num), tempstring.end()); // yaha 1 mat bhulna 
             }
         }
     }
@@ -218,16 +219,21 @@ string get_data_from_PN(int page_num)
 {
     // directly hands over the data inside the page stored in hard disk
     ifstream tempstream;
-
+    cout<<"Start of getdatafrom PN\n";
     string data = "", tmpstring = "";
+    cout<<"Addres ="<<get_address_from_PT(page_num)<<endl;
     tempstream.open(get_address_from_PT(page_num));
     if (tempstream.is_open())
     {
-        while (getline(tempstream, tmpstring))
+        while (getline(tempstream, tmpstring)) // reading each line
         {
+            cout<<"tempstring = "<<tmpstring<<endl;
+            cout<<"Data = "<<data<<endl;
             data += tmpstring + "\n";
         }
     }
+    cout<<" \n-----returned data = ";
+    cout<<data<<endl;
     return data;
 }
 Page get_page_from_PN(int page_num)
@@ -252,7 +258,7 @@ int check_page_in_PM(int page_num, vector<Page> &primary_mem)
     // returns index of required page_num inside Primary mem , -1 if not found
     for( int i = 0 ; i<primary_mem.size(); i++)
     {
-        if (primary_mem[i].ind == page_num)
+        if (primary_mem[i].ind == page_num) // IS IT SAME AS OUR PAGE NO
         {
             return i;
         }
@@ -290,7 +296,7 @@ int get_replace_index(vector<Page> &primary_mem)
 int load_page(int page_num, vector<Page> &primary_mem)
 {
     // har baar ek ek karke load karega ye banda
-    int temp = get_replace_index(primary_mem);
+    int temp = get_replace_index(primary_mem); // LRU implement  
     primary_mem[temp] = get_page_from_PN(page_num);
     primary_mem[temp].last_used = clck;
     cout<<"Page loaded"<<primary_mem[temp].data<<" ind ="<<primary_mem[temp].ind<<endl;
@@ -301,11 +307,11 @@ int load_page(int page_num, vector<Page> &primary_mem)
 int main()
 {
     cout << "Enter File name to divide\n";
-    getline(cin, file_name);
+    getline(cin, file_name); // take laptop_list
     cout << "Enter divide symbol\n";
-    cin >> divide_symbol;
-    cout << file_name;
-    divide(file_name, divide_symbol);
+    cin >> divide_symbol; // # 
+    // cout << file_name;
+    divide(file_name, divide_symbol); // divide the big file 
 
     cout << "Enter number of pages to be stored in primary memory: ";
     vector<pair<int, string>> disk_mem;
@@ -321,11 +327,19 @@ int main()
         cin >> p;
         // get_page(p,disk_mem,primary_mem_size,last_used);
         int temp = check_page_in_PM(p, prim_mem);
+        cout<<"Temp = checkpageinPM resposne"<<temp<<endl;
         cout << "Returned Page ind=" << prim_mem[temp].ind << " data=" << prim_mem[temp].data << endl;
-        if (temp == -1)
-        {
-            load_page(p, prim_mem);
-        }
+        cout<<"---Data of page"<<p<<"= "<<get_data_from_PN(p)<<endl;
+        // if (temp == -1)
+        // {
+        //     cout<<"Page not found in MM\n";
+        //     load_page(p, prim_mem);
+        // }
+        // else
+        // {
+        //     cout<<"Page found bro !!!!\n";
+        //     cout<<"Data = "<<prim_mem[temp].data<<endl;
+        // }
 
         if (p == -1)
             return 0;
