@@ -1,11 +1,11 @@
 #include <bits/stdc++.h>
 #include <fstream>
 #include <string>
-#include<sstream>
+#include <sstream>
 using namespace std;
 string get_address_from_PT(int);
 string file_name;
-char divide_symbol ;
+char divide_symbol;
 stringstream ss;
 const string file_ext = ".txt";
 class Page
@@ -39,78 +39,84 @@ int get_digits(int number)
     return count;
 }
 
-void display_page(string &addr)
+void display_page(string &addr, int pchoice)
 {
-    cout<<"Page contains:\n";
+    if (!pchoice)
+        cout << "Page contains:\n";
     ifstream page;
     page.open(addr);
-    string mystring="";
-    if(page.is_open())
+    string mystring = "";
+    if (page.is_open())
     {
-        while(getline(page,mystring))
+        while (getline(page, mystring))
         {
-            cout<<mystring<<endl;
+            cout << mystring << endl;
         }
     }
 }
-void get_page(int page_no, vector<pair<int, string>>&disk_mem, int m, map<int,int>&last_used)
+void get_page(int page_no, vector<pair<int, string>> &disk_mem, int m, map<int, int> &last_used, int pchoice)
 {
     // checks if page no. is in disk mem
     int n = disk_mem.size();
-    int x=-1;
-    int y=INT_MAX;
-    int mx=0;
-    for(int i=0;i<n;i++)
+    int x = -1;
+    int y = INT_MAX;
+    int mx = 0;
+    for (int i = 0; i < n; i++)
     {
-        if(last_used[disk_mem[i].first]>mx)
+        if (last_used[disk_mem[i].first] > mx)
         {
-            mx=last_used[disk_mem[i].first];
+            mx = last_used[disk_mem[i].first];
         }
-        if(last_used[disk_mem[i].first]<y)
+        if (last_used[disk_mem[i].first] < y)
         {
-            y=last_used[disk_mem[i].first];
-            x=disk_mem[i].first;
+            y = last_used[disk_mem[i].first];
+            x = disk_mem[i].first;
         }
     }
     for (int i = 0; i < n; i++)
     {
         if (disk_mem[i].first == page_no)
         {
-            cout<<"\nPAGE HIT\n";
-            display_page(disk_mem[i].second);
-            last_used[page_no]=mx+1;
+            if (!pchoice)
+                cout << "\nPAGE HIT\n";
+            display_page(disk_mem[i].second, pchoice);
+            last_used[page_no] = mx + 1;
             return;
         }
     }
-    cout<<"\nPAGE MISS\n";
-    string addr=get_address_from_PT(page_no);
-    display_page(addr);
+    if (!pchoice)
+        cout << "\nPAGE MISS\n";
+    string addr = get_address_from_PT(page_no);
+    display_page(addr, pchoice);
     if (n < m)
     {
-        disk_mem.push_back({page_no,addr});
-        last_used[page_no]=mx+1;
+        disk_mem.push_back({page_no, addr});
+        last_used[page_no] = mx + 1;
     }
     else
     {
-        for(int i=0;i<n;i++)
+        for (int i = 0; i < n; i++)
         {
-            if(disk_mem[i].first==x)
+            if (disk_mem[i].first == x)
             {
-                disk_mem[i].first=page_no;
-                disk_mem[i].second=addr;
+                disk_mem[i].first = page_no;
+                disk_mem[i].second = addr;
                 last_used.erase(x);
-                mx+=1;
-                last_used[page_no]+=mx+1;
+                mx += 1;
+                last_used[page_no] += mx + 1;
                 break;
             }
         }
     }
-    cout<<"\nDisk now contains pages: ";
-    for(auto i:last_used)
+    if (!pchoice)
     {
-        cout<<i.first<<" ";
+        cout << "\nDisk now contains pages: ";
+        for (auto i : last_used)
+        {
+            cout << i.first << " ";
+        }
     }
-    cout<<endl;
+    cout << endl;
 }
 void divide(string file_name, char divide_symbol)
 {
@@ -119,7 +125,7 @@ void divide(string file_name, char divide_symbol)
     int counter = 0;
     string file_ext = ".txt";
 
-    myfile.open(file_name+file_ext);
+    myfile.open(file_name + file_ext);
 
     string mystring;
     string tmpstring = "";
@@ -136,14 +142,14 @@ void divide(string file_name, char divide_symbol)
                 if (counter > 0)
                 {
                     ofstream tempfile;
-                    tempfile.open(file_name+"_" + to_string(counter) + file_ext);
+                    tempfile.open(file_name + "_" + to_string(counter) + file_ext);
                     tempfile << tmpstring;
                     tempfile.close();
                 }
                 tmpstring = mystring;
                 counter++;
                 content << to_string(counter) + " " << mystring + "\n";
-                table << to_string(counter) + " " + file_name+"_" + to_string(counter) + file_ext<<endl;
+                table << to_string(counter) + " " + file_name + "_" + to_string(counter) + file_ext << endl;
             }
             else
             {
@@ -152,7 +158,7 @@ void divide(string file_name, char divide_symbol)
             cout << mystring << endl;
         }
         ofstream tempfile;
-        tempfile.open(file_name+"_" + to_string(counter) + file_ext);
+        tempfile.open(file_name + "_" + to_string(counter) + file_ext);
         tempfile << tmpstring;
         tempfile.close();
         content.close();
@@ -164,35 +170,39 @@ string get_address_from_PT(int page_num)
 {
     // takes page no and returns the page file name
 
-    string PT_name = file_name + "_table"+ file_ext;
+    string PT_name = file_name + "_table" + file_ext;
     ifstream table;
-    table.open( PT_name);
+    table.open(PT_name);
     string tempstring;
     string temppgno;
     int tmp;
-    if( table.is_open())
+    if (table.is_open())
     {
-        while( getline(table, tempstring))
+        while (getline(table, tempstring))
         {
-            temppgno = string( tempstring.begin(), tempstring.begin() + get_digits(page_num));
-            if( temppgno.compare(to_string(page_num))==0)
+            temppgno = string(tempstring.begin(), tempstring.begin() + get_digits(page_num));
+            if (temppgno.compare(to_string(page_num)) == 0)
             {
-                return string(tempstring.begin()+get_digits(page_num)+1, tempstring.end());
+                return string(tempstring.begin() + get_digits(page_num) + 1, tempstring.end());
             }
         }
     }
     return "Not Found";
 }
-void merge()
+//  loads each page one by one and print everything
+void merge(vector<pair<int, string>> &disk_mem, int m, map<int, int> &last_used)
 {
-    ifstream myfile;
-    myfile.open("laptop_list.txt");
+    ifstream content;
+    content.open("laptop_list_content.txt");
     string mystring;
-    if (myfile.is_open())
+    int c = 1;
+    if (content.is_open())
     {
-        while (getline(myfile, mystring))
+        while (getline(content, mystring))
         {
-            cout << mystring << endl;
+            // cout << mystring << endl;
+            get_page(c, disk_mem, m, last_used, 1);
+            c++;
         }
     }
 }
@@ -200,17 +210,20 @@ int main()
 {
     cout << "Enter File name to divide\n";
     getline(cin, file_name);
-    cout<<"Enter divide symbol\n";
-    cin>>divide_symbol;
-    cout << file_name<<endl;
-    divide(file_name,divide_symbol);
+    cout << "Enter divide symbol\n";
+    cin >> divide_symbol;
+    cout << file_name << endl;
+    divide(file_name, divide_symbol);
 
-    cout<<"Enter number of pages to be stored in primary memory: ";
-    vector<pair<int,string>>disk_mem;
+    cout << "Enter number of pages to be stored in primary memory: ";
+    // no of frames in memory , usually we enter 3 for this
+    vector<pair<int, string>> disk_mem;
     int m;
-    cin>>m;
-    vector<Page> prim_mem ( m , Page()); // alternate to disk_mem
-    map<int,int>last_used;
+    cin >> m;
+    // alternate to disk_mem
+    vector<Page> prim_mem(m, Page());
+    // time is the second int , page no. is the first int
+    map<int, int> last_used;
 
     while (true)
     {
@@ -219,11 +232,11 @@ int main()
         cin >> c;
         if (c == 1)
         {
-            merge();
+            merge(disk_mem, m, last_used);
         }
         else if (c == 2)
         {
-            cout<<"Content:\n";
+            cout << "Content:\n";
             ifstream content;
             content.open("laptop_list_content.txt");
             string mystring;
@@ -234,25 +247,25 @@ int main()
                     cout << mystring << endl;
                 }
             }
-            while(true)
+            while (true)
             {
-                cout<<"\nEnter page no: \t*Enter 0 to exit*\n___";
+                cout << "\nEnter page no: \t*Enter 0 to exit*\n___";
                 int p;
-                cin>>p;
-                if(p==0)
+                cin >> p;
+                if (p == 0)
                 {
                     break;
                 }
-                get_page(p,disk_mem,m,last_used);
+                get_page(p, disk_mem, m, last_used, 0);
             }
         }
-        else if(c==3)
+        else if (c == 3)
         {
             break;
         }
         else
         {
-            cout<<"Wrong option\n";
+            cout << "Wrong option\n";
         }
     }
     return 0;
